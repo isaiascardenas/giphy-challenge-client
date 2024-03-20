@@ -48,6 +48,7 @@ function FileUploader({ handleFile }: Props) {
       </button>
       <input
         type="file"
+        name="file-input"
         accept=".png, .jpg, .jpeg, .gif"
         onChange={handleChange}
         ref={hiddenFileInput}

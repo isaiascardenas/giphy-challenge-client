@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Link, useParams, redirect } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../redux/store";
 import { deleteGif, getGif, updateGif } from "../redux/features/gifSlice";
 import FileUploader from "./widgets/FileUploader";
@@ -8,6 +8,7 @@ function Edit() {
   const imageMimeType = /image\/(png|jpg|jpeg|gif)/i;
   const routeParams = useParams();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const gifsState = useAppSelector((state) => state.gif);
 
@@ -50,15 +51,28 @@ function Edit() {
   }, [fileValue]);
 
   const submitForm = () => {
+    if (titleValue.length < 1) {
+      alert("Title is required");
+      return;
+    }
+
+    if (fileUrl.length < 1 && !fileValue) {
+      alert("File is required");
+      return;
+    }
+
     try {
       dispatch(
         updateGif({
+          id: gifsState.selection?.id,
+          slug: gifsState.selection?.slug,
           title: titleValue,
           url: fileUrl,
+          giphy_id: gifsState.selection?.giphy_id,
         }),
       );
 
-      redirect("/");
+      navigate("/");
     } catch (error: any) {
       console.log(error.message);
     } finally {
@@ -84,7 +98,7 @@ function Edit() {
       try {
         dispatch(deleteGif(routeParams.id));
 
-        redirect("/");
+        navigate("/");
       } catch (error: any) {
         console.log(error.message);
       } finally {
@@ -192,7 +206,7 @@ function Edit() {
               </button>
               <div className="w-full flex justify-end gap-4">
                 <button
-                  onClick={() => redirect("/")}
+                  onClick={() => navigate("/")}
                   className="py-2 px-8 border border-solid border-gray-500 bg-white rounded-md text-gray-500 hover:bg-gray-100"
                 >
                   Cancel

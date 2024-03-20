@@ -17,16 +17,23 @@ const List = () => {
   }, [searchParams]);
 
   const handleSearchInput = (query: string) => {
-    const params = Utils.decodeSearchParams(searchParams);
-    params.query = query;
-    setSearchParams(Utils.encodeSearchParams(params));
+    if (query.length > 0) {
+      const params = Utils.decodeSearchParams(searchParams);
+      params.query = query;
+      setSearchParams(Utils.encodeSearchParams(params));
+    } else {
+      setSearchParams("");
+    }
     setSearchInput(query);
   };
 
   return (
     <>
       <div className="container mx-auto px-4 md:px-12">
-        <h1 className="text-center text-xl font-bold py-8">Listado de Gifs</h1>
+        <h1 className="text-center text-xl font-bold py-8">
+          Gif's challenge{" "}
+          <span className="text-xs text-gray-400 font-normal">by Isaias Cardenas</span>
+        </h1>
         <div className="flex-grow border-t my-4 border-gray-400"></div>
         <div className="flex justify-between py-4">
           <SearchInput
@@ -36,9 +43,9 @@ const List = () => {
           />
           <Link
             to="/crear"
-            className="py-2 px-8 border-solid border border-gray-400 bg-gray-400 rounded-md text-white hover:bg-gray-500"
+            className="py-2 px-8 bg-gray-500 rounded-md text-white hover:bg-gray-600"
           >
-            Nuevo Gif
+            Add Gif
           </Link>
         </div>
         <div className="flex flex-wrap -mx-1 lg:-mx-4">
@@ -78,7 +85,7 @@ const List = () => {
 
                     <footer className="flex items-center justify-between leading-none p-2 md:p-4">
                       <p className="text-grey-darker text-sm">
-                        {gif.created_at}
+                        {gif.created_at.split("T")[0]}
                       </p>
                     </footer>
                   </article>

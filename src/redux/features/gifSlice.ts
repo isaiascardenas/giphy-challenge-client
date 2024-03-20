@@ -55,15 +55,36 @@ const getGif = createAsyncThunk("gifs/getGif", async (id) => {
   });
 });
 
-const postGif = createAsyncThunk("gifs/postGif", async (data) => {
-  return await axios.post(baseUrl + "/gifs/", data).then(function (response) {
-    return response.data;
-  });
+const postGif = createAsyncThunk("gifs/postGif", async (data: any) => {
+  var formData = new FormData();
+  formData.append("title", data.title);
+  formData.append("file-input", data.file);
+  return await axios
+    .post(baseUrl + "/gifs/", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
+    .then(function (response) {
+      return response.data;
+    });
 });
 
-const updateGif = createAsyncThunk("gifs/updateGif", async (data: Gif) => {
+const updateGif = createAsyncThunk("gifs/updateGif", async (data: any) => {
+  var formData = new FormData();
+  formData.append("id", data.id);
+  formData.append("slug", data.slug);
+  formData.append("url", data.url);
+  formData.append("title", data.title);
+  formData.append("giphy_id", data.giphy_id);
+  formData.append("file-input", data.file);
+
   return await axios
-    .patch(baseUrl + "/gifs/" + data.id, data)
+    .patch(baseUrl + "/gifs/" + data.id, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    })
     .then(function (response) {
       return response.data;
     });
@@ -78,7 +99,11 @@ const deleteGif = createAsyncThunk("gifs/deleteGif", async (id) => {
 export const GifSlice = createSlice({
   name: "gifs",
   initialState,
-  reducers: {},
+  reducers: {
+    setupLoading: (state, _) => {
+      state.loading = false;
+    },
+  },
   extraReducers: (builder) => {
     // fetchGifs Reducer
     builder.addCase(fetchGifs.pending, (state) => {
@@ -132,5 +157,6 @@ export const GifSlice = createSlice({
   },
 });
 
+export const { setupLoading } = GifSlice.actions;
 export { fetchGifs, getGif, postGif, updateGif, deleteGif };
 export default GifSlice.reducer;

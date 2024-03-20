@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link, redirect } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../redux/store";
-import { postGif } from "../redux/features/gifSlice";
+import { postGif, setupLoading } from "../redux/features/gifSlice";
 import FileUploader from "./widgets/FileUploader";
 
 function Create() {
   const imageMimeType = /image\/(png|jpg|jpeg|gif)/i;
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const gifsState = useAppSelector((state) => state.gif);
 
@@ -25,6 +26,10 @@ function Create() {
   };
 
   useEffect(() => {
+    dispatch(setupLoading());
+  }, []);
+
+  useEffect(() => {
     if (fileValue) {
       setFileUrl(URL.createObjectURL(fileValue));
     } else {
@@ -33,15 +38,25 @@ function Create() {
   }, [fileValue]);
 
   const submitForm = () => {
+    if (titleValue.length < 1) {
+      alert("Title is required");
+      return;
+    }
+
+    if (fileUrl.length < 1 && !fileValue) {
+      alert("File is required");
+      return;
+    }
+
     try {
       dispatch(
         postGif({
           title: titleValue,
-          url: fileUrl,
+          file: fileValue,
         }),
       );
 
-      redirect("/");
+      navigate("/");
     } catch (error: any) {
       console.log(error.message);
     } finally {
@@ -82,75 +97,80 @@ function Create() {
             Back
           </Link>
         </div>
+        {gifsState.loading && (
+          <div className="text-center w-full py-4 text-xl">Loading...</div>
+        )}
         {!gifsState.loading && gifsState.error ? (
           <div className="text-center py-4 text-xl">
             Error: {gifsState.error}
           </div>
         ) : null}
-        <div className="mx-auto max-w-2xl">
-          <div className="border-b border-gray-900/10 pb-8">
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div className="sm:col-span-full">
-                <label className="block text-sm font-medium leading-6 text-gray-900">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  className="p-2 border-solid border border-gray-400 rounded-md w-full"
-                  placeholder=""
-                  value={titleValue}
-                  onChange={(e) => setTitleValue(e.target.value)}
-                />
-              </div>
+        {!gifsState.loading && (
+          <div className="mx-auto max-w-2xl">
+            <div className="border-b border-gray-900/10 pb-8">
+              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                <div className="sm:col-span-full">
+                  <label className="block text-sm font-medium leading-6 text-gray-900">
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    className="p-2 border-solid border border-gray-400 rounded-md w-full"
+                    placeholder=""
+                    value={titleValue}
+                    onChange={(e) => setTitleValue(e.target.value)}
+                  />
+                </div>
 
-              <div className="sm:col-span-full">
-                <label className="block text-sm font-medium leading-6 text-gray-900">
-                  File
-                </label>
-                <div className="w-full focus:outline-none">
-                  {fileUrl && fileUrl.length > 0 ? (
-                    <div className="w-full md:bg-gray-200 md:py-4">
-                      <img
-                        alt="Animated gif"
-                        className="block h-auto w-full md:mx-auto md:w-2/3 md:h-80"
-                        src={fileUrl}
-                      />
-                    </div>
-                  ) : null}
-
-                  {!fileUrl || fileUrl.length == 0 ? (
-                    <FileUploader handleFile={handleFile}></FileUploader>
-                  ) : null}
-                  <div className="w-full flex items-center justify-end">
+                <div className="sm:col-span-full">
+                  <label className="block text-sm font-medium leading-6 text-gray-900">
+                    File
+                  </label>
+                  <div className="w-full focus:outline-none">
                     {fileUrl && fileUrl.length > 0 ? (
-                      <button
-                        onClick={() => handleFile(null)}
-                        type="button"
-                        className="mt-2 ml-4 rounded px-3 py-1 text-sm text-white bg-gray-500 focus:outline-none hover:bg-gray-600"
-                      >
-                        Edit file
-                      </button>
+                      <div className="w-full md:bg-gray-200 md:py-4">
+                        <img
+                          alt="Animated gif"
+                          className="block h-auto w-full md:mx-auto md:w-2/3 md:h-80"
+                          src={fileUrl}
+                        />
+                      </div>
                     ) : null}
+
+                    {!fileUrl || fileUrl.length == 0 ? (
+                      <FileUploader handleFile={handleFile}></FileUploader>
+                    ) : null}
+                    <div className="w-full flex items-center justify-end">
+                      {fileUrl && fileUrl.length > 0 ? (
+                        <button
+                          onClick={() => handleFile(null)}
+                          type="button"
+                          className="mt-2 ml-4 rounded px-3 py-1 text-sm text-white bg-gray-500 focus:outline-none hover:bg-gray-600"
+                        >
+                          Edit file
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+            <div className="w-full mt-8 flex gap-4 justify-end">
+              <button
+                onClick={() => redirect("/")}
+                className="py-2 px-8 border border-solid border-gray-500 bg-white rounded-md text-gray-500 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitForm}
+                className="py-2 px-8 bg-gray-500 rounded-md text-white hover:bg-gray-600"
+              >
+                Save
+              </button>
+            </div>
           </div>
-          <div className="w-full mt-8 flex justify-end">
-            <button
-              onClick={() => redirect("/")}
-              className="py-2 px-8 border border-solid border-gray-500 bg-white rounded-md text-gray-500 hover:bg-gray-100"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={submitForm}
-              className="py-2 px-8 bg-gray-500 rounded-md text-white hover:bg-gray-600"
-            >
-              Save
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </>
   );

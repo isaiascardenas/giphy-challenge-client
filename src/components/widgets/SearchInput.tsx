@@ -35,7 +35,7 @@ const SearchInput = ({ className, value, onChange }: Props) => {
     <input
       type="text"
       className={className}
-      placeholder="Buscar gif"
+      placeholder="Search..."
       value={inputValue}
       onChange={handleInputChange}
     />
