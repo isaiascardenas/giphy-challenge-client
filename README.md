@@ -1,6 +1,6 @@
 # Giphy challenge client
 
-client app for giphy challenge
+client app for giphy challenge made in React TSX
 
 ## Setup
 
@@ -8,12 +8,8 @@ After clone this repository install dependencies executing
 ```
 npm install
 ```
-Copy .env.example file to .env file and update the environment variables
-```
-cp .env.example .env
-```
 Then start the server by runing
 ```
-npm start
+npm run preview
 ```
 Done. The server should run on localhost:3000
