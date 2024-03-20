@@ -10,6 +10,6 @@ npm install
 ```
 Then start the server by runing
 ```
-npm run preview
+npm run dev
 ```
-Done. The server should run on localhost:3000
+Done. The server should run on localhost:5173
